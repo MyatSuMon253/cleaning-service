@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
+data/bookings.json
+
+# Booking records contain customer phone numbers and addresses — never commit
+data/
