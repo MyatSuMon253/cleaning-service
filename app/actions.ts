@@ -1,32 +1,158 @@
 "use server";
 
-import { mkdir, appendFile } from "node:fs/promises";
+import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { dictionaries } from "../content/dictionaries";
+import {
+  bookingReference,
+  durationKey,
+  earliestBookableDate,
+  formatMmk,
+  isBookableDate,
+  isValidDuration,
+  normalizeMmPhone,
+  priceFor,
+} from "../lib/format";
+import type { Locale } from "../lib/locale";
+import { SHIFTS, getService, getSurveyFee, isFixed, type DurationHours, type ShiftId } from "../lib/services";
 
-export interface BookingState {
+export type BookingSummary = {
+  serviceName: string;
+  date: string;
+  shift: string;
+  duration: string | null;
+  surveyFee: string | null;
+  phone: string;
+};
+
+export type BookingResult = {
+  status: "idle" | "success" | "error";
   message: string;
-  success: boolean;
+  reference?: string;
+  fieldErrors?: Record<string, string>;
+  summary?: BookingSummary;
+};
+
+export const initialBookingState: BookingResult = { status: "idle", message: "" };
+
+function read(formData: FormData, key: string): string {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
 }
 
-export async function createBooking(_previousState: BookingState, formData: FormData): Promise<BookingState> {
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
-  const service = String(formData.get("service") ?? "").trim();
-  const date = String(formData.get("date") ?? "").trim();
-  const homeSize = String(formData.get("homeSize") ?? "").trim();
+function parseLocaleField(value: string): Locale {
+  return value === "en" || value === "my" ? value : "my";
+}
 
-  if (name.length < 2 || name.length > 100) return { message: "Please enter your name (at least 2 characters).", success: false };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { message: "Please enter a valid email address.", success: false };
-  if (phone.replace(/\D/g, "").length < 7) return { message: "Please enter a valid phone number.", success: false };
-  if (!["regular", "deep", "move", "office"].includes(service)) return { message: "Please choose one of our available services.", success: false };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < new Date().toISOString().slice(0, 10)) return { message: "Please choose a future appointment date.", success: false };
-  if (!["studio", "one", "two", "three", "four"].includes(homeSize)) return { message: "Please select the size of your space.", success: false };
+export async function createBooking(
+  _previousState: BookingResult,
+  formData: FormData,
+): Promise<BookingResult> {
+  const locale = parseLocaleField(read(formData, "locale"));
+  const t = dictionaries[locale];
+  const errors: Record<string, string> = {};
 
-  const booking = { id: crypto.randomUUID(), name, email, phone, service, date, homeSize, createdAt: new Date().toISOString() };
-  const dataDirectory = path.join(process.cwd(), "data");
-  await mkdir(dataDirectory, { recursive: true });
-  await appendFile(path.join(dataDirectory, "bookings.json"), `${JSON.stringify(booking)}\n`, "utf8");
+  const name = read(formData, "name");
+  const rawPhone = read(formData, "phone");
+  const address = read(formData, "address");
+  const serviceId = read(formData, "serviceId");
+  const date = read(formData, "date");
+  const shift = read(formData, "shift");
+  const rawDuration = read(formData, "durationHours");
+  const notes = read(formData, "notes");
 
-  return { message: `You're on the list, ${name.split(" ")[0]}! We'll be in touch shortly to confirm your ${service === "regular" ? "regular clean" : service === "deep" ? "deep clean" : service === "move" ? "move-in / move-out clean" : "office clean"}.`, success: true };
+  if (name.length < 2 || name.length > 100) errors.name = t.booking.errors.name;
+
+  const phone = normalizeMmPhone(rawPhone);
+  if (!phone) errors.phone = t.booking.errors.phone;
+
+  if (address.length < 10) errors.address = t.booking.errors.address;
+
+  const service = getService(serviceId);
+  if (!service) errors.service = t.booking.errors.service;
+
+  if (!isBookableDate(date, earliestBookableDate())) errors.date = t.booking.errors.date;
+
+  const validShift = shift === "morning" || shift === "evening" ? (shift as ShiftId) : null;
+  if (!validShift) errors.shift = t.booking.errors.shift;
+
+  // Duration is required for fixed-price services and must not be sent for deep cleaning.
+  let durationHours: DurationHours | null = null;
+  let quotedPriceMmk: number | null = null;
+  let surveyFeeMmk: number | null = null;
+
+  if (service) {
+    if (isFixed(service)) {
+      if (!isValidDuration(rawDuration)) {
+        errors.durationHours = t.booking.errors.duration;
+      } else {
+        durationHours = rawDuration;
+        const price = priceFor(rawDuration, service.pricing.tiers);
+        if (price === undefined) errors.durationHours = t.booking.errors.duration;
+        else quotedPriceMmk = price;
+      }
+    } else {
+      surveyFeeMmk = getSurveyFee(service);
+    }
+  }
+
+  // A 7-hour job always starts at 9:00.
+  if (validShift === "evening" && durationHours === 7) {
+    errors.durationHours = t.booking.errors.durationNotAvailable;
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return {
+      status: "error",
+      message: t.booking.errors.generic,
+      fieldErrors: errors,
+    };
+  }
+
+  const id = crypto.randomUUID();
+  const record = {
+    id,
+    createdAt: new Date().toISOString(),
+    locale,
+    name,
+    phone,
+    address,
+    serviceId,
+    date,
+    shift: validShift,
+    durationHours,
+    quotedPriceMmk,
+    surveyFeeMmk,
+    notes,
+  };
+
+  try {
+    const dataDirectory = path.join(process.cwd(), "data");
+    await mkdir(dataDirectory, { recursive: true });
+    await appendFile(path.join(dataDirectory, "bookings.json"), `${JSON.stringify(record)}\n`, "utf8");
+  } catch {
+    return {
+      status: "error",
+      message: t.booking.errors.generic,
+      fieldErrors: {},
+    };
+  }
+
+  const shiftMeta = SHIFTS.find((s) => s.id === validShift)!;
+
+  return {
+    status: "success",
+    message: t.booking.success.heading,
+    reference: bookingReference(id),
+    summary: {
+      serviceName: service ? t.services[service.id].name : "",
+      date,
+      shift: `${validShift === "morning" ? t.shifts.morning : t.shifts.evening} · ${shiftMeta.startHour}:00`,
+      duration:
+        durationHours !== null ? t.pricing.duration[durationKey(durationHours)] : null,
+      surveyFee:
+        surveyFeeMmk !== null ? `${formatMmk(surveyFeeMmk)} ${t.pricing.currency}` : null,
+      phone: phone ?? "",
+    },
+  };
 }
