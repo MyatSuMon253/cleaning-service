@@ -2,7 +2,8 @@
 
 import { CheckCircle2, Phone } from "lucide-react";
 import { useActionState, useState } from "react";
-import { createBooking, initialBookingState } from "../app/actions";
+import { createBooking } from "../app/actions";
+import { initialBookingState } from "../lib/booking";
 import type { Dictionary } from "../content/dictionaries";
 import { durationKey, earliestBookableDate, formatMmk } from "../lib/format";
 import type { Locale } from "../lib/locale";

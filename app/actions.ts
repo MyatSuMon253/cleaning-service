@@ -3,6 +3,7 @@
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { dictionaries } from "../content/dictionaries";
+import type { BookingResult } from "../lib/booking";
 import {
   bookingReference,
   durationKey,
@@ -15,25 +16,6 @@ import {
 } from "../lib/format";
 import type { Locale } from "../lib/locale";
 import { SHIFTS, getService, getSurveyFee, isFixed, type DurationHours, type ShiftId } from "../lib/services";
-
-export type BookingSummary = {
-  serviceName: string;
-  date: string;
-  shift: string;
-  duration: string | null;
-  surveyFee: string | null;
-  phone: string;
-};
-
-export type BookingResult = {
-  status: "idle" | "success" | "error";
-  message: string;
-  reference?: string;
-  fieldErrors?: Record<string, string>;
-  summary?: BookingSummary;
-};
-
-export const initialBookingState: BookingResult = { status: "idle", message: "" };
 
 function read(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -83,11 +65,12 @@ export async function createBooking(
 
   if (service) {
     if (isFixed(service)) {
-      if (!isValidDuration(rawDuration)) {
+      const parsedDuration = Number(rawDuration);
+      if (!isValidDuration(parsedDuration)) {
         errors.durationHours = t.booking.errors.duration;
       } else {
-        durationHours = rawDuration;
-        const price = priceFor(rawDuration, service.pricing.tiers);
+        durationHours = parsedDuration;
+        const price = priceFor(parsedDuration, service.pricing.tiers);
         if (price === undefined) errors.durationHours = t.booking.errors.duration;
         else quotedPriceMmk = price;
       }

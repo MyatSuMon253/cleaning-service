@@ -28,9 +28,9 @@ export function normalizeMmPhone(raw: string): string | null {
   if (digits.startsWith("00959")) digits = "0" + digits.slice(3);
   else if (digits.startsWith("959")) digits = "0" + digits.slice(2);
   else if (digits.startsWith("95")) digits = "0" + digits.slice(2);
-  else if (/^9\d{8,9}$/.test(digits)) digits = "0" + digits;
+  else if (/^9\d{6,9}$/.test(digits)) digits = "0" + digits;
 
-  return /^09\d{9}$/.test(digits) ? digits : null;
+  return /^09\d{7,9}$/.test(digits) ? digits : null;
 }
 
 const YANGON_OFFSET_MINUTES = 6 * 60 + 30;

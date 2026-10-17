@@ -71,8 +71,9 @@ a {
   --radius: 6px;
   --radius-sm: 2px;
 
-  --font-manrope: var(--font-manrope), system-ui, sans-serif;
-  --font-noto-my: var(--font-noto-my), system-ui, sans-serif;
+  /* Latin leads by default; Myanmar is kept in the stack so a stray Burmese
+     phrase in an English page still renders with Noto rather than a fallback. */
+  --font-sans: var(--font-manrope), var(--font-noto-my), system-ui, sans-serif;
 
   /* Type scale — every value in rem, nothing below 0.875rem */
   --fs-xs: 0.875rem;
@@ -123,7 +124,7 @@ html {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-manrope);
+  font-family: var(--font-sans);
   font-size: var(--fs-base);
   line-height: 1.7;
   letter-spacing: 0;
@@ -134,13 +135,18 @@ body {
 /* Latin leads in English; Myanmar leads in Burmese. Both stacks stay loaded
    so a stray phrase in the other script still renders correctly. */
 [data-locale="en"] {
-  --font-sans: var(--font-manrope);
+  --font-sans: var(--font-manrope), var(--font-noto-my), system-ui, sans-serif;
 }
 
 [data-locale="my"] {
-  --font-sans: var(--font-noto-my);
-  line-height: 1.9;
+  --font-sans: var(--font-noto-my), var(--font-manrope), system-ui, sans-serif;
   letter-spacing: normal;
+}
+
+/* Myanmar stacks tall diacritics above and below the baseline — 1.7 clips them.
+   Set on body, which would otherwise override the inherited value. */
+[data-locale="my"] body {
+  line-height: 1.9;
 }
 
 [data-locale="my"] h1,
@@ -162,7 +168,7 @@ button,
 input,
 select,
 textarea {
-  font-family: var(--font-sans, var(--font-manrope));
+  font-family: var(--font-sans);
 }
 
 h1,
