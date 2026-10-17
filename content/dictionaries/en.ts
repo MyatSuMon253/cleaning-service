@@ -1,3 +1,9 @@
+import { formatMmk } from "../../lib/format";
+import { TIERS } from "../../lib/services";
+
+/** Derived from TIERS so the legal text can never drift from the price list. */
+const TIER_LIST = TIERS.map((t) => `${t.hours} hours ${formatMmk(t.mmk)} MMK`).join(", ");
+
 export const en = {
   brand: "Tidy Home",
   tagline: "Home cleaning in Yangon",
@@ -207,7 +213,7 @@ export const en = {
       },
       {
         title: "Fixed pricing",
-        body: "General Cleaning, Moving and Washing + Ironing are priced by duration: 3 hours 20,000 MMK, 4 hours 25,000 MMK, 7 hours 45,000 MMK. Hours run continuously from the chosen start time, and a 7-hour booking always starts at 9:00.",
+        body: `General Cleaning, Moving and Washing + Ironing are priced by duration: ${TIER_LIST}. Hours run continuously from the chosen start time, and a 7-hour booking always starts at 9:00.`,
       },
       {
         title: "One-time bookings",

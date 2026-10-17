@@ -1,4 +1,9 @@
+import { formatMmk } from "../../lib/format";
+import { TIERS } from "../../lib/services";
 import type { Dictionary } from "./index";
+
+/** Derived from TIERS so the legal text can never drift from the price list. */
+const TIER_LIST = TIERS.map((t) => `${t.hours} နာရီ MMK ${formatMmk(t.mmk)}`).join("၊ ");
 
 export const my: Dictionary = {
   brand: "Tidy Home",
@@ -213,7 +218,7 @@ export const my: Dictionary = {
       },
       {
         title: "စျေးနှုန်း သတ်မှတ်ချက်",
-        body: "အထွေထွေ သန့်ရှင်းရေး၊ ရွှေ့ပြောင်းခြင်းနှင့် အဝတ်လျှော်ခြင်း/သွတ်ခြင်းတို့ကို အချိန်ပေါ် မူတည်၍ စျေးနှုန်းသတ်မှတ်ထားသည် — 3 နာရီ MMK 20,000၊ 4 နာရီ MMK 25,000၊ 7 နာရီ MMK 45,000။ နာရီများသည် ရွေးချယ်ထားသော စတင်ချိန်မှစ၍ ဆက်တိုက် တွက်ချက်ပြီး၊ 7 နာရီ မှာယူမှုသည် အမြဲတမ်း 9:00 တွင်သာ စတင်ပါသည်။",
+        body: `အထွေထွေ သန့်ရှင်းရေး၊ ရွှေ့ပြောင်းခြင်းနှင့် အဝတ်လျှော်ခြင်း/သွတ်ခြင်းတို့ကို အချိန်ပေါ် မူတည်၍ စျေးနှုန်းသတ်မှတ်ထားသည် — ${TIER_LIST}။ နာရီများသည် ရွေးချယ်ထားသော စတင်ချိန်မှစ၍ ဆက်တိုက် တွက်ချက်ပြီး၊ 7 နာရီ မှာယူမှုသည် အမြဲတမ်း 9:00 တွင်သာ စတင်ပါသည်။`,
       },
       {
         title: "တစ်ကြိမ်သာ မှာယူခြင်း",
