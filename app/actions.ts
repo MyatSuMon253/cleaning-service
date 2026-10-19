@@ -37,6 +37,8 @@ export async function createBooking(
   const name = read(formData, "name");
   const rawPhone = read(formData, "phone");
   const address = read(formData, "address");
+  const busStop = read(formData, "busStop");
+  const busLines = read(formData, "busLines");
   const serviceId = read(formData, "serviceId");
   const date = read(formData, "date");
   const shift = read(formData, "shift");
@@ -49,6 +51,10 @@ export async function createBooking(
   if (!phone) errors.phone = t.booking.errors.phone;
 
   if (address.length < 10) errors.address = t.booking.errors.address;
+
+  // Both are optional directions for the crew; only the length is checked.
+  if (busStop.length > 120) errors.busStop = t.booking.errors.busStop;
+  if (busLines.length > 120) errors.busLines = t.booking.errors.busLines;
 
   const service = getService(serviceId);
   if (!service) errors.service = t.booking.errors.service;
@@ -100,6 +106,8 @@ export async function createBooking(
     name,
     phone,
     address,
+    busStop,
+    busLines,
     serviceId,
     date,
     shift: validShift,

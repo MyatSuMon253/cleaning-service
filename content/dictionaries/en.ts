@@ -51,30 +51,72 @@ export const en = {
     eyebrow: "What we do",
     heading: "Four services",
     note: "Every booking is one-time. There are no plans and no subscriptions.",
+    materialsHeading: "What you need to supply for this service",
     general: {
       name: "General Cleaning",
       blurb:
         "The routine reset for a home that is already in decent shape. Floors, surfaces, bathroom, kitchen — done properly, in the hours you book.",
       note: "Fixed price by duration",
+      materials: [
+        "Broom, dustpan and a mop with bucket",
+        "Tile cleaner and floor cleaner",
+        "Bathroom and toilet cleaner, plus a toilet brush",
+        "Dishwashing liquid, sponges and steel scourers",
+        "A rubbish bin and rubbish bags",
+        "Dust cloths and long cleaning gloves",
+      ],
     },
     deep: {
       name: "Deep Cleaning",
       blurb:
         "Post-renovation, move-in, or a home that has not had a proper scrub in years. Detailed manual work, not a machine pass.",
       note: "Priced after an on-site survey",
+      materials: [
+        "Everything on the general cleaning list",
+        "Degreaser for the kitchen and extractor hood",
+        "A long-handled scrubbing brush",
+        "A sturdy step ladder for ceilings, fans and high places",
+        "A vacuum cleaner, if you have one",
+      ],
     },
     moving: {
       name: "Moving",
       blurb:
         "Empty the old place or settle into the new one. We work around the boxes so you can concentrate on the move itself.",
       note: "Fixed price by duration",
+      materials: [
+        "Everything on the general cleaning list",
+        "All-purpose cleaner and glass cleaner",
+      ],
     },
     washing: {
       name: "Washing + Ironing",
       blurb:
         "Laundry washed, pressed and folded. Hand it over at the start of the shift and collect it at the end.",
       note: "Fixed price by duration",
+      materials: [
+        "A washing machine, or basins for hand washing",
+        "Laundry detergent and fabric softener",
+        "Stain remover for collars and cuffs",
+        "An iron and an ironing table or board",
+        "A drying rack, or a clothes line with pegs, plus hangers",
+      ],
     },
+  },
+
+  serviceDetail: {
+    detailsCta: "View details",
+    overviewHeading: "About this service",
+    factsHeading: "At a glance",
+    factPricing: "Pricing",
+    factStart: "Start times",
+    factDamage: "Damage cover",
+    materialsHeading: "Materials you supply",
+    materialsLede:
+      "Our team arrives with none of these. Have them ready before the shift starts.",
+    resultsHeading: "Before and after",
+    bookHeading: "Book this service",
+    bookLede: "One form, one minute. We call back to confirm.",
   },
 
   gallery: {
@@ -129,6 +171,8 @@ export const en = {
       name: "Your name",
       phone: "Phone number",
       address: "Address",
+      busStop: "Nearest bus stop",
+      busLines: "Bus line numbers that run there",
       service: "Service",
       date: "Preferred date",
       shift: "Start time",
@@ -139,6 +183,8 @@ export const en = {
       name: "e.g. Aung Kyaw",
       phone: "09 XXX XXX XXX",
       address: "Ward, township, building, floor, unit, landmarks",
+      busStop: "e.g. Hledan, in front of Junction Square",
+      busLines: "e.g. 36, 43, YBS 61",
       notes: "Optional",
     },
     surveyNotice:
@@ -150,6 +196,8 @@ export const en = {
       name: "Please enter your name.",
       phone: "Please enter a valid Myanmar phone number, starting 09.",
       address: "Please tell us the full address, including ward and township.",
+      busStop: "Please keep the bus stop under 120 characters.",
+      busLines: "Please keep the bus line numbers under 120 characters.",
       service: "Please choose a service.",
       date: "Please choose a date from tomorrow onwards.",
       shift: "Please choose a start time.",

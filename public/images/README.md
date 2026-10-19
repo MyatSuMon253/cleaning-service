@@ -2,6 +2,12 @@
 
 Real photos replace the placeholders without touching any component.
 
+**Current state:** every pair now carries a real photograph, but they are *licensed stock
+photos, not Tidy Home's own jobs* — see `CREDITS.md`. Each before/after pair is two
+different rooms, so the comparison reads as "this kind of mess becomes this kind of clean",
+not as one room photographed twice. Replace them with genuine job photos when you have
+them; the steps below are all it takes.
+
 ## How to add a photo
 
 1. Export it here, e.g. `general-living-before.webp` and `general-living-after.webp`.
@@ -36,7 +42,8 @@ Pair ids currently defined in `lib/gallery.ts`:
   comparison does not read. Same time of day and same camera position.
 - **No people, no faces, no visible paperwork.** Nothing that needs a model release.
 
-## Replacing the placeholders
+## The placeholder SVGs
 
-`placeholder-before.svg` and `placeholder-after.svg` can be deleted once every pair in
-`lib/gallery.ts` has a real `src`.
+`placeholder-before.svg` and `placeholder-after.svg` are now unused — every pair in
+`lib/gallery.ts` has a real `src`. They are kept as the fallback for any pair added later
+with an empty `src`, so the page never shows a broken image.

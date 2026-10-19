@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Dictionary } from "../content/dictionaries";
 import type { Locale } from "../lib/locale";
 import { LocaleToggle } from "./LocaleToggle";
@@ -7,16 +8,17 @@ export function SiteHeader({ t, locale }: { t: Dictionary; locale: Locale }) {
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <a href="#top" className="brand">
+        <Link href="/" className="brand">
           {t.brand}
-        </a>
+        </Link>
 
+        {/* Root-relative hashes so the links also work from a service page. */}
         <nav className="nav" aria-label={t.brand}>
-          <a href="#services">{t.nav.services}</a>
-          <a href="#gallery">{t.nav.gallery}</a>
-          <a href="#pricing">{t.nav.pricing}</a>
-          <a href="#booking">{t.nav.book}</a>
-          <a href="#terms">{t.nav.terms}</a>
+          <Link href="/#services">{t.nav.services}</Link>
+          <Link href="/#gallery">{t.nav.gallery}</Link>
+          <Link href="/#pricing">{t.nav.pricing}</Link>
+          <Link href="/#booking">{t.nav.book}</Link>
+          <Link href="/#terms">{t.nav.terms}</Link>
         </nav>
 
         <div className="header-actions">

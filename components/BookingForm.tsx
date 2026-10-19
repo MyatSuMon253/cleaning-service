@@ -7,12 +7,28 @@ import { initialBookingState } from "../lib/booking";
 import type { Dictionary } from "../content/dictionaries";
 import { durationKey, earliestBookableDate, formatMmk } from "../lib/format";
 import type { Locale } from "../lib/locale";
-import { SERVICES, SHIFTS, formatStartHour, getService, isFixed } from "../lib/services";
+import {
+  SERVICES,
+  SHIFTS,
+  type ServiceId,
+  formatStartHour,
+  getService,
+  isFixed,
+} from "../lib/services";
 
-export function BookingForm({ t, locale }: { t: Dictionary; locale: Locale }) {
+export function BookingForm({
+  t,
+  locale,
+  initialServiceId = "general",
+}: {
+  t: Dictionary;
+  locale: Locale;
+  /** Preselects the dropdown when the form is embedded on a service page. */
+  initialServiceId?: ServiceId;
+}) {
   const [state, formAction, pending] = useActionState(createBooking, initialBookingState);
 
-  const [serviceId, setServiceId] = useState<string>("general");
+  const [serviceId, setServiceId] = useState<string>(initialServiceId);
   const [duration, setDuration] = useState<string>("3");
   const [shift, setShift] = useState<string>("morning");
   // Derived, not synced in an effect: the confirmation shows after a successful
@@ -176,6 +192,46 @@ export function BookingForm({ t, locale }: { t: Dictionary; locale: Locale }) {
             {t.booking.placeholders.address}
           </p>
         )}
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="busStop">
+          {t.booking.labels.busStop}
+        </label>
+        <input
+          id="busStop"
+          name="busStop"
+          className="field-input"
+          placeholder={t.booking.placeholders.busStop}
+          maxLength={120}
+          aria-invalid={Boolean(errors.busStop)}
+          aria-describedby={errors.busStop ? "busStop-error" : undefined}
+        />
+        {errors.busStop ? (
+          <p className="field-error" id="busStop-error">
+            {errors.busStop}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="busLines">
+          {t.booking.labels.busLines}
+        </label>
+        <input
+          id="busLines"
+          name="busLines"
+          className="field-input"
+          placeholder={t.booking.placeholders.busLines}
+          maxLength={120}
+          aria-invalid={Boolean(errors.busLines)}
+          aria-describedby={errors.busLines ? "busLines-error" : undefined}
+        />
+        {errors.busLines ? (
+          <p className="field-error" id="busLines-error">
+            {errors.busLines}
+          </p>
+        ) : null}
       </div>
 
       <div className="field">
